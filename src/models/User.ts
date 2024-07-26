@@ -1,10 +1,14 @@
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   highScore: { type: Number, default: 0 },
-}, { timestamps: true });
+  completionTimes: [
+    {
+      puzzleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Puzzle' },
+      time: { type: Number }
+    }
+  ]
+});
 
-const User = mongoose.model('User', UserSchema);
-
-export default User;
+export default mongoose.model('User', userSchema);

@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// routes/puzzle.ts
 const express_1 = require("express");
 const Puzzle_1 = __importDefault(require("../models/Puzzle"));
 const User_1 = __importDefault(require("../models/User"));
@@ -61,7 +62,7 @@ const generateGrid = (difficulty) => {
     return [];
 };
 router.post('/submit', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, puzzleId, solution } = req.body;
+    const { username, puzzleId, solution, completionTime } = req.body; // Include completionTime in the request body
     try {
         const puzzle = yield Puzzle_1.default.findById(puzzleId);
         if (!puzzle) {
@@ -71,7 +72,10 @@ router.post('/submit', (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.log('Submitted Solution:', solution);
         const isCorrect = evaluateSolution(puzzle.grid, solution);
         if (isCorrect) {
-            const user = yield User_1.default.findOneAndUpdate({ username }, { $inc: { highScore: 1 } }, { new: true, upsert: true });
+            const user = yield User_1.default.findOneAndUpdate({ username }, {
+                $inc: { highScore: 1 },
+                $push: { completionTimes: { puzzleId, time: completionTime } }
+            }, { new: true, upsert: true });
             return res.json({ success: true, user });
         }
         else {
@@ -86,11 +90,24 @@ router.post('/submit', (req, res) => __awaiter(void 0, void 0, void 0, function*
 const evaluateSolution = (grid, solution) => {
     console.log('Expected Grid:', grid);
     console.log('Submitted Solution:', solution);
-    // Convert grid into a flat array for easier comparison
-    const flatGrid = grid.flat().map((value) => value !== null ? value : 0);
-    // Flatten solution coordinates into a list of values
-    const flatSolutionValues = solution.flat().map(({ row, col }) => grid[row][col]);
-    // Compare the grid and solution values
-    return flatGrid.every((value, index) => value === flatSolutionValues[index]);
+    // Create a new grid based on the solution
+    const solutionGrid = grid.map(row => row.slice()); // Copy the grid
+    for (const pair of solution) {
+        // `pair` is an array of two cells, so loop through each cell
+        for (const { row, col } of pair) {
+            // Check if coordinates are within bounds
+            if (row < 0 || row >= grid.length || col < 0 || col >= grid[row].length) {
+                console.log(`Invalid coordinates: (${row}, ${col})`);
+                return false;
+            }
+            // Mark the solution cells
+            solutionGrid[row][col] = 1; // Example: mark with 1, you can adjust this logic
+        }
+    }
+    // Flatten both grids for comparison
+    const flatGrid = grid.flat();
+    const flatSolutionGrid = solutionGrid.flat();
+    // Compare each value
+    return flatGrid.every((value, index) => value === flatSolutionGrid[index]);
 };
 exports.default = router;

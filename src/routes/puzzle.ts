@@ -1,3 +1,4 @@
+// routes/puzzle.ts
 import { Router, Request, Response } from 'express';
 import Puzzle from '../models/Puzzle';
 import User from '../models/User';
@@ -57,7 +58,7 @@ const generateGrid = (difficulty: string): number[][] => {
 };
 
 router.post('/submit', async (req: Request<{}, {}, SubmitRequestBody>, res: Response) => {
-  const { username, puzzleId, solution } = req.body;
+  const { username, puzzleId, solution, completionTime } = req.body; // Include completionTime in the request body
 
   try {
     const puzzle = await Puzzle.findById(puzzleId);
@@ -74,7 +75,10 @@ router.post('/submit', async (req: Request<{}, {}, SubmitRequestBody>, res: Resp
     if (isCorrect) {
       const user = await User.findOneAndUpdate(
         { username },
-        { $inc: { highScore: 1 } },
+        {
+          $inc: { highScore: 1 },
+          $push: { completionTimes: { puzzleId, time: completionTime } }
+        },
         { new: true, upsert: true }
       );
       return res.json({ success: true, user });
@@ -86,7 +90,6 @@ router.post('/submit', async (req: Request<{}, {}, SubmitRequestBody>, res: Resp
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 const evaluateSolution = (grid: number[][], solution: { row: number, col: number }[][]): boolean => {
   console.log('Expected Grid:', grid);
   console.log('Submitted Solution:', solution);
@@ -94,14 +97,16 @@ const evaluateSolution = (grid: number[][], solution: { row: number, col: number
   // Create a new grid based on the solution
   const solutionGrid = grid.map(row => row.slice()); // Copy the grid
   for (const pair of solution) {
-    const { row, col } = pair;
-    // Check if coordinates are within bounds
-    if (row < 0 || row >= grid.length || col < 0 || col >= grid[row].length) {
-      console.log(`Invalid coordinates: (${row}, ${col})`);
-      return false;
+    // `pair` is an array of two cells, so loop through each cell
+    for (const { row, col } of pair) {
+      // Check if coordinates are within bounds
+      if (row < 0 || row >= grid.length || col < 0 || col >= grid[row].length) {
+        console.log(`Invalid coordinates: (${row}, ${col})`);
+        return false;
+      }
+      // Mark the solution cells
+      solutionGrid[row][col] = 1; // Example: mark with 1, you can adjust this logic
     }
-    // Mark the solution cells
-    solutionGrid[row][col] = 1; // Example: mark with 1, you can adjust this logic
   }
 
   // Flatten both grids for comparison
@@ -111,7 +116,6 @@ const evaluateSolution = (grid: number[][], solution: { row: number, col: number
   // Compare each value
   return flatGrid.every((value, index) => value === flatSolutionGrid[index]);
 };
-
 
 
 export default router;
