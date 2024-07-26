@@ -15,8 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect('mongodb://localhost:27017/puzzleGame', {
-        // Remove useNewUrlParser and useUnifiedTopology as they are no longer required
+        const mongoURI = process.env.MONGO_URI;
+        if (!mongoURI) {
+            throw new Error('MongoDB connection string is not defined in environment variables');
+        }
+        console.log('MongoDB URI:', mongoURI); // Debugging line
+        yield mongoose_1.default.connect(mongoURI, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
         });
         console.log('MongoDB connected');
     }
