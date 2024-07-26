@@ -14,14 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
+// Load environment variables from .env file
 dotenv_1.default.config();
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Assert that the MONGO_URI is a string
-        const mongoURI = process.env.MONGO_URI;
-        yield mongoose_1.default.connect(mongoURI, {
+        const MONGO_CONNECTION_AS_STRING = process.env.MONGO_URI;
+        if (!MONGO_CONNECTION_AS_STRING) {
+            throw new Error('MongoDB connection string is not defined in environment variables');
+        }
+        console.log('MongoDB URI:', MONGO_CONNECTION_AS_STRING); // Log the MongoDB URI to ensure it is correct
+        yield mongoose_1.default.connect(MONGO_CONNECTION_AS_STRING, {
         // useNewUrlParser: true,
-        // useUnifiedTopology: true
+        // useUnifiedTopology: true,
         });
         console.log('MongoDB connected');
     }

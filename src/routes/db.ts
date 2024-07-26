@@ -1,16 +1,18 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-
-dotenv.config();
 
 const connectDB = async () => {
   try {
-    // Assert that the MONGO_URI is a string
-    const mongoURI = process.env.MONGO_URI as string;
+    const mongoURI = process.env.MONGO_URI;
+
+    if (!mongoURI) {
+      throw new Error('MongoDB connection string is not defined in environment variables');
+    }
+
+    console.log('MongoDB URI:', mongoURI); // Debugging line
 
     await mongoose.connect(mongoURI, {
       // useNewUrlParser: true,
-      // useUnifiedTopology: true
+      // useUnifiedTopology: true,
     });
 
     console.log('MongoDB connected');
