@@ -1,10 +1,18 @@
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+
+dotenv.config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb+srv://samiuddinbirgoshi@gmail.com:Abcd123!@cluster0.pirsiz7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-      // Remove useNewUrlParser and useUnifiedTopology as they are no longer required
+    // Assert that the MONGO_URI is a string
+    const mongoURI = process.env.MONGO_URI as string;
+
+    await mongoose.connect(mongoURI, {
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true
     });
+
     console.log('MongoDB connected');
   } catch (err) {
     console.error('MongoDB connection error:', err);
@@ -13,4 +21,3 @@ const connectDB = async () => {
 };
 
 export default connectDB;
-

@@ -12,11 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
+dotenv_1.default.config();
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect('mongodb://localhost:27017/puzzleGame', {
-        // Remove useNewUrlParser and useUnifiedTopology as they are no longer required
+        // Assert that the MONGO_URI is a string
+        const mongoURI = process.env.MONGO_URI;
+        yield mongoose_1.default.connect(mongoURI, {
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true
         });
         console.log('MongoDB connected');
     }
