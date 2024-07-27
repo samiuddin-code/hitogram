@@ -7,14 +7,15 @@ import connectDB from './routes/db'; // Import your database connection function
 import puzzleRouter from './routes/puzzle'; // Import your puzzle routes
 
 const app = express();
-const port = process.env.PORT || 3001; // Use environment variable for port
+const port = 3001;
 
-// CORS configuration
 app.use(cors({
   origin: ['http://159.89.104.127:3000', 'http://159.89.104.127:3000'], // Ensure correct origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors());
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
