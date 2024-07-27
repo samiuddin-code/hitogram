@@ -12,10 +12,11 @@ const puzzle_1 = __importDefault(require("./routes/puzzle")); // Import your puz
 const app = (0, express_1.default)();
 const port = 3001;
 app.use((0, cors_1.default)({
-    origin: ['http://localhost:3000', 'http://159.89.104.127'], // Add all your frontend origins here
+    origin: ['http://localhost:3000', 'http://159.89.104.127:3000'], // Ensure correct origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', (0, cors_1.default)());
 // Middleware
 app.use(express_1.default.json()); // Parse JSON bodies
 // Connect to database
