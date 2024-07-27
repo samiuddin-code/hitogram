@@ -10,10 +10,12 @@ const app = express();
 const port = 3001;
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://159.89.104.127'], // Add all your frontend origins here
+  origin: ['http://localhost:3000', 'http://159.89.104.127:3000'], // Ensure correct origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors());
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
